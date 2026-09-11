@@ -3,51 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Muscle-feat</title>
+    <title>Muscle & Fit - Suivi d'entraînement</title>
     <style>
         :root {
             --bg-primary: #121212;
-            --bg-secondary: #1e1e24;
-            --accent: #ff3b30;
+            --bg-secondary: #1e1e1e;
             --text-main: #ffffff;
-            --text-sub: #a0a0a0;
+            --text-sub: #b0b0b0;
+            --accent: #ff4757;
+            --accent-hover: #ff6b81;
         }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
+
         body {
             background-color: var(--bg-primary);
             color: var(--text-main);
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
+
         .container {
-            background-color: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
             width: 100%;
-            max-width: 400px;
+            max-width: 480px;
         }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            margin-top: 10px;
+        }
+
         h1 {
             color: var(--accent);
-            margin-bottom: 15px;
+            font-size: 24px;
+            margin-bottom: 5px;
         }
-        p {
+
+        p.subtitle {
             color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        /* Minuteur */
+        .timer-display {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            color: var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:active {
+            background-color: var(--accent-hover);
+        }
+
+        button.secondary {
+            background-color: #333;
+            color: var(--text-main);
+        }
+
+        /* Liste des exercices */
+        .exercise-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .exercise-item:last-child {
+            border-bottom: none;
+        }
+
+        .exercise-info h3 {
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+
+        .exercise-info span {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .check-btn {
+            background: none;
+            border: 2px solid var(--text-sub);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .check-btn.completed {
+            background-color: var(--accent);
+            border-color: var(--accent);
+            color: white;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Muscle-feat</h1>
-        <p>Ton application de musculation est prête !</p>
+        <header>
+            <h1>Muscle & Fit</h1>
+            <p class="subtitle">Votre session d'entraînement du jour</p>
+        </header>
+
+        <!-- Section Minuteur de repos -->
+        <div class="card">
+            <h2>Minuteur de Repos</h2>
+            <div class="timer-display" id="timer">01:30</div>
+            <div class="btn-group">
+                <button onclick="startTimer(90)">90s</button>
+                <button class="secondary" onclick="resetTimer()">Reset</button>
+            </div>
+        </div>
+
+        <!-- Section Exercices -->
+        <div class="card">
+            <h2>Séance Haut du Corps</h2>
+            
+            <div class="exercise-item">
+                <div class="exercise-info">
+                    <h3>Développé Couché</h3>
+                    <span>4 séries × 10 reps (60kg)</span>
+                </div>
+                <button class="check-btn" onclick="toggleComplete(this)">✓</button>
+            </div>
+
+            <div class="exercise-item">
+                <div class="exercise-info">
+                    <h3>Tractions</h3>
+                    <span>3 séries × 8 reps</span>
+                </div>
+                <button class="check-btn" onclick="toggleComplete(this)">✓</button>
+            </div>
+
+            <div class="exercise-item">
+                <div class="exercise-info">
+                    <h3>Dips</h3>
+                    <span>3 séries × 12 reps</span>
+                </div>
+                <button class="check-btn" onclick="toggleComplete(this)">✓</button>
+            </div>
+        </div>
     </div>
+
+    <script>
+        // Logique du minuteur
+        let countdown;
+        function startTimer(seconds) {
+            clearInterval(countdown);
+            let timeLeft = seconds;
+            updateTimerDisplay(timeLeft);
+
+            countdown = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    alert("Fin du temps de repos ! À vos barres !");
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(countdown);
+            updateTimerDisplay(90);
+        }
+
+        function updateTimerDisplay(seconds) {
+            let mins = Math.floor(seconds / 60);
+            let secs = seconds % 60;
+            document.getElementById('timer').textContent = 
+                String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
+        }
+
+        // Valider un exercice
+        function toggleComplete(btn) {
+            btn.classList.toggle('completed');
+        }
+    </script>
 </body>
 </html>
